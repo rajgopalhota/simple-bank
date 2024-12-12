@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "../axios";
-import { Table } from "antd";
+import { Table, Button } from "antd";
 import { useAuth } from "../context/AuthContext";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const History = () => {
   const { user } = useAuth();
@@ -37,6 +39,36 @@ const History = () => {
     fetchTransactions();
   }, [user]);
 
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text("Bank Statement", 14, 22);
+
+    doc.setFontSize(12);
+    doc.text(`Name: ${user.username}`, 14, 32);
+    doc.text(`Email: ${user.email}`, 14, 40);
+    doc.text(`Generated On: ${new Date().toLocaleString()}`, 14, 48);
+
+    const tableColumn = ["Date", "Amount", "Type", "Description", "Status"];
+    const tableRows = transactions.map((transaction) => [
+      transaction.date,
+      transaction.amount,
+      transaction.type,
+      transaction.description,
+      transaction.status,
+    ]);
+
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 55,
+      theme: "grid",
+    });
+
+    doc.save("Bank_Statement.pdf");
+  };
+
   const columns = [
     {
       title: "Date",
@@ -47,15 +79,6 @@ const History = () => {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
-      render: (text, record) => (
-        <span
-          className={
-            record.type === "CREDIT" ? "text-green-500" : "text-red-500"
-          }
-        >
-          {record.type === "CREDIT" ? `+₹${text}` : `-₹${text}`}
-        </span>
-      ),
     },
     {
       title: "Type",
@@ -82,15 +105,27 @@ const History = () => {
   ];
 
   return (
-    <div className="mt-10">
-      <h1 className="text-3xl font-bold mb-5">Transaction History</h1>
+    <div>
+      <div className="flex justify-between items-center mb-5">
+        <h1 className="text-3xl font-bold gradient-text-blue">Transaction History</h1>
+        <Button
+          onClick={downloadPDF}
+          type="primary"
+          className="bg-blue-500 hover:bg-blue-600"
+        >
+          Download PDF
+        </Button>
+      </div>
       <Table
         dataSource={transactions}
         columns={columns}
         rowKey="id"
         bordered
-        pagination={{ pageSize: 5 }}
+        pagination={{ pageSize: 10 }}
         className="bg-white shadow-sm"
+        rowClassName={(record) =>
+          record.type === "CREDIT" ? "bg-green-50" : "bg-red-50"
+        }
       />
     </div>
   );

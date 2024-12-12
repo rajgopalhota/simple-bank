@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button, Input, Modal, notification, Form } from 'antd';
 import { LockOutlined, UserOutlined, MailOutlined } from '@ant-design/icons';
 import axios from '../axios';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const [form] = Form.useForm();
@@ -14,6 +15,7 @@ const Register = () => {
   const [formData, setFormData] = useState(null); // To store form data temporarily
   const [isMpinMatch, setIsMpinMatch] = useState(true); // To track if MPINs match
 
+  const navigate = useNavigate();
   const handleFormSubmit = (values) => {
     // Save form data temporarily and show MPIN modal
     setFormData(values);
@@ -58,6 +60,8 @@ const Register = () => {
         
         await axios.post('/api/users', userData);
         notification.success({ message: 'User registered successfully!' });
+        navigate("/")
+        
       } catch (error) {
         console.log(error);
         notification.error({ message: 'Registration failed', description: error.response.data });
@@ -71,7 +75,7 @@ const Register = () => {
   };
 
   return (
-    <div className="flex justify-start items-center mt-10">
+    <div className="flex justify-start items-center">
       <div className="w-full">
         <h2 className="text-2xl font-bold text-left text-gray-800 mb-6">Register to Digi Bank</h2>
 

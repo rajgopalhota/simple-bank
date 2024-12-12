@@ -30,6 +30,13 @@ public class UserService {
         return userRepository.findByUsername(username).isPresent();
     }
 
+    public double getBalance(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getBalance();
+    }
+
+
     public boolean validateMpin(Long userId, String mpin) {
         return userRepository.existsByMpinAndId(mpin, userId);
     }

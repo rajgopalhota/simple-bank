@@ -1,44 +1,52 @@
-import React, { useState } from 'react';
-import { Input, Button, notification, Modal } from 'antd';
-import axios from '../axios';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from "react";
+import { Input, Button, notification, Modal } from "antd";
+import axios from "../axios";
+import { useAuth } from "../context/AuthContext";
+import { RiseOutlined } from "@ant-design/icons";
 
 const Transaction = () => {
   const { user } = useAuth();
-  const [recipient, setRecipient] = useState('');
-  const [amount, setAmount] = useState('');
+  const [recipient, setRecipient] = useState("");
+  const [amount, setAmount] = useState("");
   const [isRecipientValid, setIsRecipientValid] = useState(false);
   const [mpinModalVisible, setMpinModalVisible] = useState(false);
-  const [mpin, setMpin] = useState(['', '', '', '', '', '']);
+  const [mpin, setMpin] = useState(["", "", "", "", "", ""]);
 
   const handleRecipientCheck = async () => {
     try {
       const response = await axios.get(`/api/users/check/${recipient}`);
       if (response.data) {
-        setIsRecipientValid(true);
-        notification.success({
-          message: 'Recipient Valid',
-          description: `The username "${recipient}" is valid.`,
-        });
+        if (recipient === user.username) {
+          notification.info({
+            message: "Recipient Invalid",
+            description: `You can't enter your username`,
+          });
+        } else {
+          setIsRecipientValid(true);
+          notification.success({
+            message: "Recipient Valid",
+            description: `The username "${recipient}" is valid.`,
+          });
+        }
       } else {
         notification.error({
-          message: 'Recipient Not Found',
+          message: "Recipient Not Found",
           description: `The username "${recipient}" does not exist.`,
         });
       }
     } catch (error) {
       notification.error({
-        message: 'Error',
-        description: 'An error occurred while checking the recipient.',
+        message: "Error",
+        description: "An error occurred while checking the recipient.",
       });
     }
   };
 
   const handleSendMoney = async () => {
-    if (mpin.join('') !== user.mpin) {
+    if (mpin.join("") !== user.mpin) {
       notification.error({
-        message: 'Incorrect MPIN',
-        description: 'The MPIN entered is incorrect.',
+        message: "Incorrect MPIN",
+        description: "The MPIN entered is incorrect.",
       });
       return;
     }
@@ -48,21 +56,21 @@ const Transaction = () => {
         fromUser: user.username,
         toUser: recipient,
         amount: parseFloat(amount),
-        mpin: mpin.join(''),
+        mpin: mpin.join(""),
       };
-      await axios.post('/api/transactions/transfer', data);
+      await axios.post("/api/transactions/transfer", data);
       notification.success({
-        message: 'Success',
-        description: 'Money sent successfully!',
+        message: "Success",
+        description: "Money sent successfully!",
       });
-      setRecipient('');
-      setAmount('');
-      setMpin(['', '', '', '', '', '']);
+      setRecipient("");
+      setAmount("");
+      setMpin(["", "", "", "", "", ""]);
       setIsRecipientValid(false);
     } catch (error) {
       notification.error({
-        message: 'Transaction Failed',
-        description: 'An error occurred while processing the transaction.',
+        message: "Transaction Failed",
+        description: "An error occurred while processing the transaction.",
       });
     } finally {
       setMpinModalVisible(false);
@@ -81,8 +89,15 @@ const Transaction = () => {
   };
 
   return (
-    <div className="flex flex-col items-center mt-10">
-      <h1 className="text-4xl font-extrabold text-blue-600 mb-6">Send Money</h1>
+    <div className="flex flex-col items-center w-full">
+      <img
+        src="/depo.gif"
+        alt="payment_logo"
+        className="w-1/3 mix-blend-multiply"
+      />
+      <h1 className="text-4xl font-extrabold text-blue-600 mb-6">
+        Send Money <RiseOutlined />
+      </h1>
       <Input
         className="mt-4 w-full max-w-lg border-blue-500 shadow-lg"
         placeholder="Recipient Username"
@@ -120,11 +135,18 @@ const Transaction = () => {
         </>
       )}
       <Modal
-        title={<span className="text-xl font-bold text-blue-600">Enter MPIN</span>}
+        title={
+          <span className="text-xl font-bold text-blue-600">Enter MPIN</span>
+        }
         visible={mpinModalVisible}
         onCancel={() => setMpinModalVisible(false)}
         footer={null}
       >
+        <img
+          src="/pay.gif"
+          alt="logo"
+          className="w-1/3 mb-2 mx-auto rounded-lg"
+        />
         <div className="grid grid-cols-6 gap-2">
           {mpin.map((digit, index) => (
             <Input

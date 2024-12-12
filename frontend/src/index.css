@@ -35,3 +35,11 @@ body {
   right: 0;
   opacity: 0.15;
 }
+
+.gradient-text-blue {
+  background: linear-gradient(to right, rgb(0, 47, 167), rgb(149, 0, 198));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}

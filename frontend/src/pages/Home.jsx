@@ -14,14 +14,15 @@ import {
   Row
 } from "antd";
 import React, { useState } from "react";
+import axios from "../axios";
 import { useAuth } from "../context/AuthContext";
-
 
 const Home = () => {
   const { user } = useAuth(); // User data from context
   const [showBalance, setShowBalance] = useState(false);
   const [mpin, setMpin] = useState(["", "", "", "", "", ""]);
   const [isMpinModalVisible, setIsMpinModalVisible] = useState(false);
+  const [balance, setBalance] = useState(null); // To store the fetched balance
 
   // Error handling for user data
   if (!user) {
@@ -38,12 +39,24 @@ const Home = () => {
     setIsMpinModalVisible(true);
   };
 
-  const handleMpinSubmit = () => {
+  const handleMpinSubmit = async () => {
     if (mpin.join("") === user.mpin) {
       // Validate MPIN against stored one in user data
-      setShowBalance(true);
-      setIsMpinModalVisible(false);
-      setMpin(["", "", "", "", "", ""]);
+      try {
+        const response = await axios.get(
+          `/api/users/balance/${user.id}`
+        );
+        setBalance(response.data);
+        setShowBalance(true);
+        setIsMpinModalVisible(false);
+        setMpin(["", "", "", "", "", ""]);
+        notification.success({ message: "Balance fetched successfully!" });
+      } catch (error) {
+        notification.error({
+          message: "Failed to fetch balance",
+          description: error.message
+        });
+      }
     } else {
       notification.error({ message: "Invalid MPIN" });
     }
@@ -62,7 +75,7 @@ const Home = () => {
 
   return (
     <>
-      <Row gutter={16} className="mt-6" align="middle">
+      <Row gutter={16} className="" align="middle">
         <Col span={12}>
           <img
             src="/bank.gif"
@@ -71,8 +84,8 @@ const Home = () => {
           />
         </Col>
         <Col span={12}>
-          <h1 className="text-4xl font-extrabold text-red-700 mb-6">
-            Welcome, {user.username}
+          <h1 className="text-4xl font-extrabold gradient-text-blue p-2 mb-3">
+            Welcome, {user.username} Have a great Banking!
           </h1>
           <Card title="User Information" bordered={false} className="shadow-xl text-lg bg-blue-100">
             <p>
@@ -83,7 +96,7 @@ const Home = () => {
             </p>
             <p>
               <DollarOutlined /> <strong>Balance:</strong>{" "}
-              {showBalance ? user.balance : "****"}
+              {showBalance ? balance : "****"}
             </p>
           </Card>
           <Button

@@ -45,6 +45,11 @@ public class UserController {
         return userService.doesUserExist(username);
     }
 
+    @GetMapping("/balance/{userId}")
+    public double getBalance(@PathVariable Long userId) {
+        return userService.getBalance(userId);
+    }
+
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestParam String username, @RequestParam String password) {
         try {
