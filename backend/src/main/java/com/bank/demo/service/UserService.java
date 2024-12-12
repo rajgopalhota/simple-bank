@@ -26,6 +26,10 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public boolean doesUserExist(String username) {
+        return userRepository.findByUsername(username).isPresent();
+    }
+
     public boolean validateMpin(Long userId, String mpin) {
         return userRepository.existsByMpinAndId(mpin, userId);
     }

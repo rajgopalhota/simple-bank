@@ -1,26 +1,27 @@
 package com.bank.demo.dto;
 
 public class TransactionRequest {
-    private Long fromUserId;
-    private Long toUserId;
+    private String fromUser;
+    private String toUser;
     private Double amount;
     private String mpin;
 
     // Getters and Setters
-    public Long getFromUserId() {
-        return fromUserId;
+
+    public String getFromUser() {
+        return fromUser;
     }
 
-    public void setFromUserId(Long fromUserId) {
-        this.fromUserId = fromUserId;
+    public void setFromUser(String fromUser) {
+        this.fromUser = fromUser;
     }
 
-    public Long getToUserId() {
-        return toUserId;
+    public String getToUser() {
+        return toUser;
     }
 
-    public void setToUserId(Long toUserId) {
-        this.toUserId = toUserId;
+    public void setToUser(String toUser) {
+        this.toUser = toUser;
     }
 
     public Double getAmount() {

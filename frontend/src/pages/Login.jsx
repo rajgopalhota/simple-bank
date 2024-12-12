@@ -29,7 +29,7 @@ const Login = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="mt-10">
       <h1 className="text-3xl">Login</h1>
       <Input
         className="mt-4"

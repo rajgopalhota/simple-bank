@@ -26,8 +26,8 @@ public class TransactionController {
     public ResponseEntity<String> transferFunds(@RequestBody TransactionRequest transactionRequest) {
         try {
             String message = transactionService.processTransaction(
-                    transactionRequest.getFromUserId(),
-                    transactionRequest.getToUserId(),
+                    transactionRequest.getFromUser(),
+                    transactionRequest.getToUser(),
                     transactionRequest.getAmount(),
                     transactionRequest.getMpin());
             return ResponseEntity.ok(message);

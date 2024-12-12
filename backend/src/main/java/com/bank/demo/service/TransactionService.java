@@ -20,9 +20,9 @@ public class TransactionService {
     }
 
     @Transactional
-    public String processTransaction(Long fromUserId, Long toUserId, Double amount, String mpin) {
+    public String processTransaction(String fromUser, String toUser, Double amount, String mpin) {
         // Validate sender
-        User sender = userRepository.findById(fromUserId)
+        User sender = userRepository.findByUsername(fromUser)
                 .orElseThrow(() -> new RuntimeException("Sender not found"));
 
         if (!sender.getMpin().equals(mpin)) {
@@ -34,7 +34,7 @@ public class TransactionService {
         }
 
         // Validate recipient
-        User recipient = userRepository.findById(toUserId)
+        User recipient = userRepository.findByUsername(toUser)
                 .orElseThrow(() -> new RuntimeException("Recipient not found"));
 
         // Deduct from sender
@@ -51,8 +51,8 @@ public class TransactionService {
         senderTransaction.setAmount(amount);
         senderTransaction.setType("DEBIT");
         senderTransaction.setStatus("SUCCESS");
-        senderTransaction.setDescription("Transfer to User ID: " + toUserId);
-        senderTransaction.setTimestamp(LocalDateTime.now()); // Set timestamp
+        senderTransaction.setDescription("Transfer to User ID: " + toUser);
+        senderTransaction.setTimestamp(LocalDateTime.now());
         transactionRepository.save(senderTransaction);
 
         // Log recipient transaction
@@ -61,7 +61,7 @@ public class TransactionService {
         recipientTransaction.setAmount(amount);
         recipientTransaction.setType("CREDIT");
         recipientTransaction.setStatus("SUCCESS");
-        recipientTransaction.setDescription("Received from User ID: " + fromUserId);
+        recipientTransaction.setDescription("Received from User ID: " + fromUser);
         recipientTransaction.setTimestamp(LocalDateTime.now()); // Set timestamp
         transactionRepository.save(recipientTransaction);
 
