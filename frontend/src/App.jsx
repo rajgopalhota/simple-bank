@@ -6,9 +6,11 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Transaction from './pages/Transaction';
 import History from './pages/History';
+import "./index.css";
 
 const App = () => (
   <AuthProvider>
+    <div className="gradient"></div>
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />

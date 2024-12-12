@@ -50,7 +50,7 @@ const Home = () => {
 
       <Modal
         title="Enter MPIN"
-        visible={isMpinModalVisible}
+        open={isMpinModalVisible}
         onOk={handleMpinSubmit}
         onCancel={() => setIsMpinModalVisible(false)}
         okText="Submit"
