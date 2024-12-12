@@ -2,12 +2,14 @@ package com.bank.demo.service;
 
 import com.bank.demo.entity.User;
 import com.bank.demo.repository.UserRepository;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
 public class UserService {
+
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
@@ -15,6 +17,8 @@ public class UserService {
     }
 
     public User createUser(User user) {
+        // Encrypt the password before saving the user
+        user.setPassword(encryptPassword(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -40,5 +44,24 @@ public class UserService {
 
         user.setBalance(updatedBalance);
         userRepository.save(user);
+    }
+
+    public User login(String username, String password) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!checkPassword(password, user.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        return user;
+    }
+
+    private String encryptPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+
+    private boolean checkPassword(String plainPassword, String encryptedPassword) {
+        return BCrypt.checkpw(plainPassword, encryptedPassword);
     }
 }
