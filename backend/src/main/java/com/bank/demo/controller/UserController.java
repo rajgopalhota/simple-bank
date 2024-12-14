@@ -20,29 +20,17 @@ public class UserController {
     @PostMapping
     public ResponseEntity<String> createUser(@RequestBody User user) {
         try {
-            // Check if the user already exists
             if (userService.doesUserExist(user.getUsername())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already exists");
             }
 
-            // Proceed with creating the user
             User createdUser = userService.createUser(user);
             return ResponseEntity.status(HttpStatus.CREATED).body("User created successfully");
 
         } catch (Exception e) {
-            // Handle any unexpected errors
+            System.out.println(e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the user");
         }
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        return ResponseEntity.of(userService.getUserById(id));
-    }
-
-    @GetMapping("/check/{username}")
-    public boolean getUserById(@PathVariable String username) {
-        return userService.doesUserExist(username);
     }
 
     @GetMapping("/balance/{userId}")
@@ -50,18 +38,35 @@ public class UserController {
         return userService.getBalance(userId);
     }
 
+    @GetMapping("/check/{accountNumber}")
+    public ResponseEntity<Boolean> checkAccountNumber(@PathVariable String accountNumber) {
+        boolean exists = userService.doesAccountNumberExist(accountNumber);
+        return ResponseEntity.ok(exists);
+    }
+
+    @GetMapping("/verify/{accountNumber}")
+    public ResponseEntity<String> verifyUser(@PathVariable String accountNumber) {
+        try {
+            userService.verifyUser(accountNumber);
+            return ResponseEntity.ok("User verified successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestParam String username, @RequestParam String password) {
         try {
             User user = userService.login(username, password);
 
-            // Create a response object with user details (excluding password)
             LoginResponse loginResponse = new LoginResponse();
             loginResponse.setId(user.getId());
             loginResponse.setUsername(user.getUsername());
             loginResponse.setEmail(user.getEmail());
             loginResponse.setBalance(user.getBalance());
             loginResponse.setMpin(user.getMpin());
+            loginResponse.setAccountNumber(user.getAccountNumber());
+            loginResponse.setVerified(user.getVerified());
 
             return ResponseEntity.ok(loginResponse);
         } catch (Exception e) {

@@ -17,17 +17,17 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    @GetMapping("/user/{userId}")
-    public List<Transaction> getTransactionsByUserId(@PathVariable Long userId) {
-        return transactionService.getAllTransactionsByUserId(userId);
+    @GetMapping("/user/{accountNumber}")
+    public List<Transaction> getTransactionsByAccountNumber(@PathVariable String accountNumber) {
+        return transactionService.getAllTransactionsByAccountNumber(accountNumber);
     }
 
     @PostMapping("/transfer")
     public ResponseEntity<String> transferFunds(@RequestBody TransactionRequest transactionRequest) {
         try {
             String message = transactionService.processTransaction(
-                    transactionRequest.getFromUser(),
-                    transactionRequest.getToUser(),
+                    transactionRequest.getFromAccount(),
+                    transactionRequest.getToAccount(),
                     transactionRequest.getAmount(),
                     transactionRequest.getMpin());
             return ResponseEntity.ok(message);
@@ -35,5 +35,4 @@ public class TransactionController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
 }

@@ -16,22 +16,22 @@ const Transaction = () => {
     try {
       const response = await axios.get(`/api/users/check/${recipient}`);
       if (response.data) {
-        if (recipient === user.username) {
+        if (recipient === user.accountNumber) {
           notification.info({
             message: "Recipient Invalid",
-            description: `You can't enter your username`,
+            description: `You can't use your own account number.`,
           });
         } else {
           setIsRecipientValid(true);
           notification.success({
             message: "Recipient Valid",
-            description: `The username "${recipient}" is valid.`,
+            description: `The account number "${recipient}" is valid.`,
           });
         }
       } else {
         notification.error({
           message: "Recipient Not Found",
-          description: `The username "${recipient}" does not exist.`,
+          description: `The account number "${recipient}" does not exist.`,
         });
       }
     } catch (error) {
@@ -53,8 +53,8 @@ const Transaction = () => {
 
     try {
       const data = {
-        fromUser: user.username,
-        toUser: recipient,
+        fromAccount: user.accountNumber,
+        toAccount: recipient,
         amount: parseFloat(amount),
         mpin: mpin.join(""),
       };
@@ -100,7 +100,7 @@ const Transaction = () => {
       </h1>
       <Input
         className="mt-4 w-full max-w-lg border-blue-500 shadow-lg"
-        placeholder="Recipient Username"
+        placeholder="Recipient Account Number"
         value={recipient}
         onChange={(e) => setRecipient(e.target.value)}
         disabled={isRecipientValid}

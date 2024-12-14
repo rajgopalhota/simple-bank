@@ -12,7 +12,7 @@ const History = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await axios.get(`/api/transactions/user/${user.id}`);
+        const response = await axios.get(`/api/transactions/user/${user.accountNumber}`);
         const parsedTransactions = response.data
           .map((transaction) => ({
             id: transaction.id,

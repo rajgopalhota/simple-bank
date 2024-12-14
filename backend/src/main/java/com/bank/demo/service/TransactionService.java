@@ -6,6 +6,7 @@ import com.bank.demo.repository.TransactionRepository;
 import com.bank.demo.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,10 +21,10 @@ public class TransactionService {
     }
 
     @Transactional
-    public String processTransaction(String fromUser, String toUser, Double amount, String mpin) {
+    public String processTransaction(String fromAccount, String toAccount, Double amount, String mpin) {
         // Validate sender
-        User sender = userRepository.findByUsername(fromUser)
-                .orElseThrow(() -> new RuntimeException("Sender not found"));
+        User sender = userRepository.findByAccountNumber(fromAccount)
+                .orElseThrow(() -> new RuntimeException("Sender account not found"));
 
         if (!sender.getMpin().equals(mpin)) {
             throw new RuntimeException("Invalid MPIN");
@@ -34,8 +35,8 @@ public class TransactionService {
         }
 
         // Validate recipient
-        User recipient = userRepository.findByUsername(toUser)
-                .orElseThrow(() -> new RuntimeException("Recipient not found"));
+        User recipient = userRepository.findByAccountNumber(toAccount)
+                .orElseThrow(() -> new RuntimeException("Recipient account not found"));
 
         // Deduct from sender
         sender.setBalance(sender.getBalance() - amount);
@@ -51,7 +52,7 @@ public class TransactionService {
         senderTransaction.setAmount(amount);
         senderTransaction.setType("DEBIT");
         senderTransaction.setStatus("SUCCESS");
-        senderTransaction.setDescription("Transfer to User ID: " + toUser);
+        senderTransaction.setDescription(String.format("Transfer to %s (Account: %s)", recipient.getUsername(), toAccount));
         senderTransaction.setTimestamp(LocalDateTime.now());
         transactionRepository.save(senderTransaction);
 
@@ -61,15 +62,14 @@ public class TransactionService {
         recipientTransaction.setAmount(amount);
         recipientTransaction.setType("CREDIT");
         recipientTransaction.setStatus("SUCCESS");
-        recipientTransaction.setDescription("Received from User ID: " + fromUser);
-        recipientTransaction.setTimestamp(LocalDateTime.now()); // Set timestamp
+        recipientTransaction.setDescription(String.format("Received from %s (Account: %s)", sender.getUsername(), fromAccount));
+        recipientTransaction.setTimestamp(LocalDateTime.now());
         transactionRepository.save(recipientTransaction);
 
         return "Transaction successful";
     }
 
-    public List<Transaction> getAllTransactionsByUserId(Long userId) {
-        return transactionRepository.findByUserId(userId);
+    public List<Transaction> getAllTransactionsByAccountNumber(String accountNumber) {
+        return transactionRepository.findByUserAccountNumber(accountNumber);
     }
-
 }

@@ -9,9 +9,9 @@ import Transaction from "./pages/Transaction";
 import Navbar from "./pages/Navbar";
 
 const App = () => (
-  <AuthProvider>
+  <Router>
     <div className="gradient" />
-    <Router>
+    <AuthProvider>
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <div className="flex-grow mx-auto w-full my-10 max-w-7xl">
@@ -29,8 +29,8 @@ const App = () => (
           </p>
         </footer>
       </div>
-    </Router>
-  </AuthProvider>
+    </AuthProvider>
+  </Router>
 );
 
 export default App;

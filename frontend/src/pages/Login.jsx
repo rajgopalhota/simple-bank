@@ -1,17 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Input, notification, Card, Typography, Space } from "antd";
 import { UserOutlined, LockOutlined, LoginOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import axios from "../axios"; // Assuming this is configured to point to your backend
 import { useAuth } from "../context/AuthContext";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuth();
+  const { login, user } = useAuth(); // Destructure user from context
   const navigate = useNavigate();
+
+  // Redirect to /home if the user is already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/home");
+    }
+  }, [user, navigate]);
 
   const handleLogin = async () => {
     try {
@@ -20,7 +27,7 @@ const Login = () => {
       );
 
       if (response.data) {
-        login(response.data);
+        login(response.data); // Store user data in context
         navigate("/home");
       } else {
         notification.error({ message: "Invalid credentials" });
@@ -33,7 +40,7 @@ const Login = () => {
   return (
     <div className="flex justify-center items-center">
       <Card className="bg-transparent w-full outline-none border-none">
-      <img
+        <img
           src="/pay.gif"
           alt="logo"
           className="w-1/4 mb-2 mx-auto rounded-lg"

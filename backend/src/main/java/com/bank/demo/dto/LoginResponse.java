@@ -6,6 +6,8 @@ public class LoginResponse {
     private String email;
     private Double balance;
     private String mpin;
+    private String accountNumber;
+    private boolean isVerified;
 
     // Getters and Setters
     public Long getId() {
@@ -46,5 +48,21 @@ public class LoginResponse {
 
     public void setMpin(String mpin) {
         this.mpin = mpin;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setVerified(boolean verified) {
+        isVerified = verified;
     }
 }

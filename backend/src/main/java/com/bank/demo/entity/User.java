@@ -2,11 +2,10 @@ package com.bank.demo.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Data;
 
+import java.time.Year;
 import java.util.Set;
 
-@Data
 @Entity
 @Table(name = "users")
 public class User {
@@ -27,12 +26,22 @@ public class User {
     private Double balance;
 
     @Column(nullable = false, length = 6)
-    private String mpin; // 6-digit MPIN for transactions
+    private String mpin;
+
+    @Column(nullable = false, unique = true, length = 10)
+    private String accountNumber;
+
+    @Column(nullable = false)
+    private Boolean verified = false;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private Set<Transaction> transactions;
 
+    public User() {
+    }
+
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -79,6 +88,22 @@ public class User {
 
     public void setMpin(String mpin) {
         this.mpin = mpin;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public Boolean getVerified() {
+        return verified;
+    }
+
+    public void setVerified(Boolean verified) {
+        this.verified = verified;
     }
 
     public Set<Transaction> getTransactions() {

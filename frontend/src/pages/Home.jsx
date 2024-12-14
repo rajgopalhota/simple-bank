@@ -2,7 +2,11 @@ import {
   DollarOutlined,
   EyeOutlined,
   MailOutlined,
-  UserOutlined
+  UserOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  CopyOutlined,
+  IdcardOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -11,7 +15,12 @@ import {
   Input,
   Modal,
   notification,
-  Row
+  Row,
+  Tag,
+  Divider,
+  Alert,
+  Tooltip,
+  message,
 } from "antd";
 import React, { useState } from "react";
 import axios from "../axios";
@@ -43,9 +52,7 @@ const Home = () => {
     if (mpin.join("") === user.mpin) {
       // Validate MPIN against stored one in user data
       try {
-        const response = await axios.get(
-          `/api/users/balance/${user.id}`
-        );
+        const response = await axios.get(`/api/users/balance/${user.id}`);
         setBalance(response.data);
         setShowBalance(true);
         setIsMpinModalVisible(false);
@@ -54,7 +61,7 @@ const Home = () => {
       } catch (error) {
         notification.error({
           message: "Failed to fetch balance",
-          description: error.message
+          description: error.message,
         });
       }
     } else {
@@ -73,21 +80,54 @@ const Home = () => {
     }
   };
 
+  // Function to copy the account number to clipboard
+  const handleCopyAccountNumber = () => {
+    navigator.clipboard.writeText(user.accountNumber);
+    message.success("Account number copied to clipboard!");
+  };
+
   return (
     <>
-      <Row gutter={16} className="" align="middle">
-        <Col span={12}>
-          <img
-            src="/bank.gif"
-            alt="Bank"
-            className="w-full h-full object-cover rounded-lg shadow-lg"
-          />
-        </Col>
-        <Col span={12}>
-          <h1 className="text-4xl font-extrabold gradient-text-blue p-2 mb-3">
-            Welcome, {user.username} Have a great Banking!
-          </h1>
-          <Card title="User Information" bordered={false} className="shadow-xl text-lg bg-blue-100">
+      {/* Verification Banner */}
+      {!user.verified ? (
+        <Alert
+          message="Account Not Verified"
+          description="Please check your email to verify your account and complete the verification process. Please relogin after the verification process"
+          type="warning"
+          showIcon
+          banner
+          className="mb-6"
+        />
+      ) : (
+        <Alert
+          message="Account Verified"
+          description="Your account has been verified, happy banking!"
+          type="success"
+          showIcon
+          banner
+          className="mb-6"
+        />
+      )}
+
+      {/* User Profile and Account Information */}
+      <Row gutter={16} className="mt-8" justify="center">
+        <Col span={24} md={12}>
+          <Card
+            title="User Information"
+            bordered={false}
+            className="shadow-xl text-lg bg-blue-100 rounded-lg h-full"
+            extra={
+              user.verified ? (
+                <Tag color="green" icon={<CheckCircleOutlined />}>
+                  Verified
+                </Tag>
+              ) : (
+                <Tag color="red" icon={<CloseCircleOutlined />}>
+                  Not Verified
+                </Tag>
+              )
+            }
+          >
             <p>
               <UserOutlined /> <strong>Username:</strong> {user.username}
             </p>
@@ -98,17 +138,56 @@ const Home = () => {
               <DollarOutlined /> <strong>Balance:</strong>{" "}
               {showBalance ? balance : "****"}
             </p>
+            <Divider />
+            <Button
+              onClick={handleShowBalance}
+              className="mt-4 w-full bg-gray-500 text-white hover:bg-gray-600 transition duration-300 ease-in-out"
+              icon={<EyeOutlined />}
+            >
+              Check Balance
+            </Button>
           </Card>
-          <Button
-            onClick={handleShowBalance}
-            className="mt-4 bg-gray-500 text-white hover:bg-gray-600 transition duration-200"
-            icon={<EyeOutlined />}
+        </Col>
+
+        <Col span={24} md={12}>
+          <Card
+            title="Account Details"
+            bordered={false}
+            className="shadow-xl text-lg bg-gray-100 rounded-lg h-full"
+            extra={
+              <Button
+                icon={<CopyOutlined />}
+                size="small"
+                onClick={handleCopyAccountNumber}
+              >
+                Copy Account Number
+              </Button>
+            }
           >
-            Check Balance
-          </Button>
+            <Row gutter={16} className="mb-6">
+              <Col span={24} md={24}>
+                <div className="bg-white shadow-md p-6 rounded-lg">
+                  <h3 className="text-xl font-semibold">
+                    <IdcardOutlined /> Account Number: {user.accountNumber}
+                  </h3>
+                </div>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={24} md={24}>
+                <div className="bg-white shadow-md p-6 rounded-lg">
+                  <h3 className="text-xl font-semibold">
+                    <UserOutlined /> Username: {user.username}
+                  </h3>
+                </div>
+              </Col>
+            </Row>
+          </Card>
         </Col>
       </Row>
 
+      {/* Modal for MPIN */}
       <Modal
         title={
           <span className="text-xl font-bold text-blue-600">Enter MPIN</span>
