@@ -86,7 +86,7 @@ const Navbar = () => {
                   </Button>
                 </Link>
                 <Link to={"/register"}>
-                  <Button type="primary" icon={<UserAddOutlined />}>
+                  <Button type="default" icon={<UserAddOutlined />}>
                     Register
                   </Button>
                 </Link>
