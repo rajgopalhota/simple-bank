@@ -10,6 +10,7 @@ const { Text } = Typography;
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false); // Loading state
   const { login, user } = useAuth(); // Destructure user from context
   const navigate = useNavigate();
 
@@ -21,6 +22,7 @@ const Login = () => {
   }, [user, navigate]);
 
   const handleLogin = async () => {
+    setLoading(true); // Set loading state to true
     try {
       const response = await axios.post(
         `/api/users/login?username=${username}&password=${password}`
@@ -34,6 +36,8 @@ const Login = () => {
       }
     } catch (error) {
       notification.error({ message: "Login failed" });
+    } finally {
+      setLoading(false); // Reset loading state
     }
   };
 
@@ -76,8 +80,10 @@ const Login = () => {
           className="mt-6"
           icon={<LoginOutlined />}
           onClick={handleLogin}
+          loading={loading} // Add loading prop
+          disabled={loading} // Prevent multiple clicks
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </Button>
       </Card>
     </div>

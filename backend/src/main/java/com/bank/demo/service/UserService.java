@@ -55,8 +55,11 @@ public class UserService {
         return userRepository.findByUsername(username).isPresent();
     }
 
-    public boolean doesAccountNumberExist(String accountNumber) {
-        return userRepository.findByAccountNumber(accountNumber).isPresent();
+    public User doesAccountNumberExist(String accountNumber) {
+        User user = userRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new RuntimeException("Invalid username or password"));
+
+        return user;
     }
 
     public User login(String username, String password) {

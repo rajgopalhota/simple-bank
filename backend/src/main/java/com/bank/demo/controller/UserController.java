@@ -39,9 +39,19 @@ public class UserController {
     }
 
     @GetMapping("/check/{accountNumber}")
-    public ResponseEntity<Boolean> checkAccountNumber(@PathVariable String accountNumber) {
-        boolean exists = userService.doesAccountNumberExist(accountNumber);
-        return ResponseEntity.ok(exists);
+    public ResponseEntity<Object> checkAccountNumber(@PathVariable String accountNumber) {
+        try {
+            User user = userService.doesAccountNumberExist(accountNumber);
+            LoginResponse loginResponse = new LoginResponse();
+            loginResponse.setUsername(user.getUsername());
+            loginResponse.setEmail(user.getEmail());
+            loginResponse.setAccountNumber(user.getAccountNumber());
+            loginResponse.setVerified(user.getVerified());
+
+            return ResponseEntity.ok(loginResponse);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Invalid credentials");
+        }
     }
 
     @GetMapping("/verify/{accountNumber}")

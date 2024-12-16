@@ -14,10 +14,12 @@ const Register = () => {
   const [isPasswordMatch, setIsPasswordMatch] = useState(true);
   const [formData, setFormData] = useState(null); // To store form data temporarily
   const [isMpinMatch, setIsMpinMatch] = useState(true); // To track if MPINs match
+  const [loading, setLoading] = useState(false); // Loading state for form submission
+  const [mpinLoading, setMpinLoading] = useState(false); // Loading state for MPIN confirmation
 
   const navigate = useNavigate();
+
   const handleFormSubmit = (values) => {
-    // Save form data temporarily and show MPIN modal
     setFormData(values);
     setMpinModalVisible(true);
   };
@@ -39,7 +41,7 @@ const Register = () => {
   const handleMpinChange = (value, index, type) => {
     const newMpin = type === 'set' ? [...mpin] : [...confirmMpin];
     newMpin[index] = value.slice(-1);
-    
+
     if (type === 'set') setMpin(newMpin);
     else setConfirmMpin(newMpin);
 
@@ -50,26 +52,30 @@ const Register = () => {
   };
 
   const handleMpinSubmit = async () => {
-    // Validate if both MPINs match
     if (mpin.join('') === confirmMpin.join('')) {
       setIsMpinMatch(true);
-      // Send registration data to backend
+      setMpinLoading(true); // Start MPIN confirmation loading
+
       try {
         const { username, password, email } = formData;
         const userData = { username, password, email, balance: 10000.0, mpin: mpin.join('') };
-        
+
         await axios.post('/api/users', userData);
         notification.success({ message: 'User registered successfully!' });
-        navigate("/")
-        
+        navigate('/');
       } catch (error) {
         console.log(error);
-        notification.error({ message: 'Registration failed', description: error.response.data });
+        notification.error({
+          message: 'Registration failed',
+          description: error.response?.data || 'Something went wrong',
+        });
+      } finally {
+        setMpinLoading(false); // End MPIN confirmation loading
       }
 
-      setMpinModalVisible(false); // Close the MPIN modal
+      setMpinModalVisible(false);
     } else {
-      setIsMpinMatch(false); // If MPINs do not match
+      setIsMpinMatch(false);
       notification.error({ message: 'MPINs do not match' });
     }
   };
@@ -79,7 +85,12 @@ const Register = () => {
       <div className="w-full">
         <h2 className="text-2xl font-bold text-left text-gray-800 mb-6">Register to Digi Bank</h2>
 
-        <Form form={form} onFinish={handleFormSubmit} layout="vertical" autoComplete="off">
+        <Form
+          form={form}
+          onFinish={handleFormSubmit}
+          layout="vertical"
+          autoComplete="off"
+        >
           <Form.Item
             name="username"
             label="Username"
@@ -105,7 +116,10 @@ const Register = () => {
             rules={[
               { required: true, message: 'Please enter your password' },
               { min: 8, message: 'Password must be at least 8 characters long' },
-              { pattern: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/, message: 'Password must contain a mix of letters, numbers, and special characters' },
+              {
+                pattern: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/,
+                message: 'Password must contain a mix of letters, numbers, and special characters',
+              },
             ]}
           >
             <Input.Password
@@ -121,7 +135,10 @@ const Register = () => {
             label="Confirm Password"
             rules={[
               { required: true, message: 'Please confirm your password' },
-              { validator: () => (isPasswordMatch ? Promise.resolve() : Promise.reject('Passwords do not match')) },
+              {
+                validator: () =>
+                  isPasswordMatch ? Promise.resolve() : Promise.reject('Passwords do not match'),
+              },
             ]}
           >
             <Input.Password
@@ -140,6 +157,8 @@ const Register = () => {
             type="primary"
             htmlType="submit"
             className="w-full py-3 mt-4 bg-blue-600 text-white hover:bg-blue-700"
+            loading={loading} // Show spinner during form submission
+            onClick={() => setLoading(true)} // Start loading on submit
           >
             Submit
           </Button>
@@ -192,6 +211,7 @@ const Register = () => {
             className="mt-6 w-full text-lg py-3"
             size="large"
             onClick={handleMpinSubmit}
+            loading={mpinLoading} // Show spinner during MPIN confirmation
           >
             Confirm MPIN
           </Button>

@@ -1,31 +1,44 @@
 import React, { useState } from "react";
-import { Input, Button, notification, Modal } from "antd";
-import axios from "../axios";
+import { Input, Button, notification, Modal, Alert } from "antd";
 import { useAuth } from "../context/AuthContext";
-import { RiseOutlined } from "@ant-design/icons";
-
+import {
+  RiseOutlined,
+  UserOutlined,
+  DollarCircleOutlined,
+  MailOutlined,
+  CheckCircleOutlined,
+  WarningOutlined,
+} from "@ant-design/icons";
+import axios from "../axios";
 const Transaction = () => {
   const { user } = useAuth();
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
-  const [isRecipientValid, setIsRecipientValid] = useState(false);
+  const [isRecipientValid, setIsRecipientValid] = useState(null);
   const [mpinModalVisible, setMpinModalVisible] = useState(false);
   const [mpin, setMpin] = useState(["", "", "", "", "", ""]);
 
   const handleRecipientCheck = async () => {
+    if (recipient === user.accountNumber) {
+      notification.info({
+        message: "Recipient Invalid",
+        description: `You can't use your own account number.`,
+      });
+      return;
+    }
     try {
       const response = await axios.get(`/api/users/check/${recipient}`);
       if (response.data) {
-        if (recipient === user.accountNumber) {
-          notification.info({
-            message: "Recipient Invalid",
-            description: `You can't use your own account number.`,
-          });
-        } else {
-          setIsRecipientValid(true);
+        setIsRecipientValid(response.data);
+        if (response.data.verified) {
           notification.success({
             message: "Recipient Valid",
-            description: `The account number "${recipient}" is valid.`,
+            description: `The account number "${recipient}" is valid and verified.`,
+          });
+        } else {
+          notification.warning({
+            message: "Recipient Unverified",
+            description: `The account number "${recipient}" is not verified. Transactions cannot proceed.`,
           });
         }
       } else {
@@ -43,6 +56,15 @@ const Transaction = () => {
   };
 
   const handleSendMoney = async () => {
+    if (!isRecipientValid?.verified) {
+      notification.error({
+        message: "Transaction Blocked",
+        description:
+          "The recipient account is not verified. Transactions are not allowed.",
+      });
+      return;
+    }
+
     if (mpin.join("") !== user.mpin) {
       notification.error({
         message: "Incorrect MPIN",
@@ -79,7 +101,7 @@ const Transaction = () => {
 
   const handleMpinChange = (value, index) => {
     const newMpin = [...mpin];
-    newMpin[index] = value.slice(-1); // Allow only the last digit entered
+    newMpin[index] = value.slice(-1);
     setMpin(newMpin);
 
     if (value && index < mpin.length - 1) {
@@ -89,18 +111,29 @@ const Transaction = () => {
   };
 
   return (
-    <div className="flex flex-col items-center w-full">
-      <img
-        src="/depo.gif"
-        alt="payment_logo"
-        className="w-1/3 mix-blend-multiply"
-      />
+    <div className="flex flex-col items-center w-full p-4">
+      {isRecipientValid && (
+        <UserOutlined
+          className={`text-${
+            isRecipientValid.verified ? "green" : "red"
+          }-600 text-6xl mb-6`}
+        />
+      )}
+
       <h1 className="text-4xl font-extrabold text-blue-600 mb-6">
-        Send Money <RiseOutlined />
+        Transfer Funds <RiseOutlined />
       </h1>
+      {!isRecipientValid && (
+        <img
+          src="/depo.gif"
+          alt="payment_logo"
+          className="w-1/3 mix-blend-multiply mb-6"
+        />
+      )}
       <Input
         className="mt-4 w-full max-w-lg border-blue-500 shadow-lg"
         placeholder="Recipient Account Number"
+        prefix={<UserOutlined className="text-blue-500" />}
         value={recipient}
         onChange={(e) => setRecipient(e.target.value)}
         disabled={isRecipientValid}
@@ -117,21 +150,53 @@ const Transaction = () => {
       )}
       {isRecipientValid && (
         <>
+          {!isRecipientValid.verified && (
+            <Alert
+              className="mt-4 w-full max-w-lg"
+              message="Recipient Not Verified"
+              description="The recipient account is not verified. Transactions cannot proceed."
+              type="warning"
+              showIcon
+              icon={<WarningOutlined />}
+            />
+          )}
+
           <Input
-            className="mt-4 w-full max-w-lg border-blue-500 shadow-lg"
-            placeholder="Amount"
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            className="mt-4 w-full max-w-lg border-blue-500 shadow-lg uppercase bg-green-50"
+            placeholder="Name"
+            type="text"
+            prefix={<UserOutlined className="text-green-500" />}
+            value={isRecipientValid.username}
+            disabled
           />
-          <Button
-            type="primary"
-            className="mt-4 w-full max-w-lg text-lg py-3"
-            size="large"
-            onClick={() => setMpinModalVisible(true)}
-          >
-            Pay
-          </Button>
+          <Input
+            className="mt-4 w-full max-w-lg border-blue-500 shadow-lg uppercase bg-green-50"
+            placeholder="Email"
+            type="email"
+            prefix={<MailOutlined className="text-green-500" />}
+            value={isRecipientValid.email}
+            disabled
+          />
+          {isRecipientValid.verified && (
+            <>
+              <Input
+                className="mt-4 w-full max-w-lg border-blue-500 shadow-lg"
+                placeholder="Amount"
+                type="number"
+                prefix={<DollarCircleOutlined className="text-blue-500" />}
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
+              <Button
+                type="primary"
+                className="mt-4 w-full max-w-lg text-lg py-3"
+                size="large"
+                onClick={() => setMpinModalVisible(true)}
+              >
+                Pay
+              </Button>
+            </>
+          )}
         </>
       )}
       <Modal
