@@ -3,6 +3,8 @@ package com.bank.demo.controller;
 import com.bank.demo.dto.TransactionRequest;
 import com.bank.demo.entity.Transaction;
 import com.bank.demo.service.TransactionService;
+import com.bank.demo.utils.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,14 +13,21 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/transactions")
 public class TransactionController {
+
     private final TransactionService transactionService;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     public TransactionController(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
 
-    @GetMapping("/user/{accountNumber}")
-    public List<Transaction> getTransactionsByAccountNumber(@PathVariable String accountNumber) {
+    @GetMapping("/getList")
+    public List<Transaction> getTransactionsByAccountNumber(@RequestHeader("Authorization") String token) {
+        String jwt = token.startsWith("Bearer ") ? token.substring(7) : token;
+
+        // Extract account number from the token
+        String accountNumber = jwtUtil.extractAccountNumber(jwt);
         return transactionService.getAllTransactionsByAccountNumber(accountNumber);
     }
 

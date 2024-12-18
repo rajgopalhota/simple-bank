@@ -8,6 +8,15 @@ public class LoginResponse {
     private String mpin;
     private String accountNumber;
     private boolean isVerified;
+    private String token;
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 
     // Getters and Setters
     public Long getId() {
