@@ -32,14 +32,19 @@ public class TransactionController {
     }
 
     @PostMapping("/transfer")
-    public ResponseEntity<String> transferFunds(@RequestBody TransactionRequest transactionRequest) {
+    public ResponseEntity<String> transferFunds(@RequestHeader("Authorization") String token, @RequestBody TransactionRequest transactionRequest) {
         try {
+
+            String jwt = token.startsWith("Bearer ") ? token.substring(7) : token;
+            String accountNumber = jwtUtil.extractAccountNumber(jwt);
+
             String message = transactionService.processTransaction(
-                    transactionRequest.getFromAccount(),
+                    accountNumber,
                     transactionRequest.getToAccount(),
                     transactionRequest.getAmount(),
                     transactionRequest.getMpin());
             return ResponseEntity.ok(message);
+
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

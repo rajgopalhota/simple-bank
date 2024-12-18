@@ -4,19 +4,9 @@ public class LoginResponse {
     private Long id;
     private String username;
     private String email;
-    private Double balance;
     private String mpin;
     private String accountNumber;
     private boolean isVerified;
-    private String token;
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
 
     // Getters and Setters
     public Long getId() {
@@ -43,13 +33,6 @@ public class LoginResponse {
         this.email = email;
     }
 
-    public Double getBalance() {
-        return balance;
-    }
-
-    public void setBalance(Double balance) {
-        this.balance = balance;
-    }
 
     public String getMpin() {
         return mpin;

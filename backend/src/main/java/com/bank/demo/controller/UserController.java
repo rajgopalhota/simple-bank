@@ -39,9 +39,11 @@ public class UserController {
         }
     }
 
-    @GetMapping("/balance/{userId}")
-    public double getBalance(@PathVariable Long userId) {
-        return userService.getBalance(userId);
+    @GetMapping("/balance")
+    public double getBalance(@RequestHeader("Authorization") String token) {
+        String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+        String username = jwtUtil.extractUsername(jwtToken);
+        return userService.getBalance(username);
     }
 
     @GetMapping("/check/{accountNumber}")
@@ -53,7 +55,6 @@ public class UserController {
             loginResponse.setEmail(user.getEmail());
             loginResponse.setAccountNumber(user.getAccountNumber());
             loginResponse.setVerified(user.getVerified());
-
             return ResponseEntity.ok(loginResponse);
         } catch (Exception e) {
             return ResponseEntity.status(401).body("Invalid credentials");
@@ -69,32 +70,42 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+    @GetMapping("/getUser")
+    public ResponseEntity<Object> getUser(@RequestHeader("Authorization") String token) {
+        try {
+
+            String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+
+            String username = jwtUtil.extractUsername(jwtToken);
+            User user = userService.getUserByUsername(username);
+
+            // Create response DTO
+            LoginResponse loginResponse = new LoginResponse();
+            loginResponse.setId(user.getId());
+            loginResponse.setUsername(user.getUsername());
+            loginResponse.setEmail(user.getEmail());
+            loginResponse.setMpin(user.getMpin());
+            loginResponse.setAccountNumber(user.getAccountNumber());
+            loginResponse.setVerified(user.getVerified());
+
+            return ResponseEntity.ok(loginResponse);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Invalid or expired token");
+        }
+    }
 
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestParam String username, @RequestParam String password) {
         try {
             User user = userService.login(username, password);
-            System.out.println(user.getUsername());
-            // Generate JWT token with claims
             Map<String, Object> claims = Map.of(
                     "username", user.getUsername(),
                     "accountNumber", user.getAccountNumber(),
                     "email", user.getEmail()
             );
-
             String token = jwtUtil.generateToken(claims);
-            System.out.println(token);
-            // Create response with the token
-            LoginResponse loginResponse = new LoginResponse();
-            loginResponse.setId(user.getId());
-            loginResponse.setUsername(user.getUsername());
-            loginResponse.setEmail(user.getEmail());
-            loginResponse.setBalance(user.getBalance());
-            loginResponse.setMpin(user.getMpin());
-            loginResponse.setAccountNumber(user.getAccountNumber());
-            loginResponse.setVerified(user.getVerified());
-            loginResponse.setToken(token); // Add token to response
-            return ResponseEntity.ok(loginResponse);
+            return ResponseEntity.ok(token);
         } catch (Exception e) {
             return ResponseEntity.status(401).body("Invalid credentials");
         }

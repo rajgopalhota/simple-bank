@@ -1,20 +1,11 @@
 package com.bank.demo.dto;
 
 public class TransactionRequest {
-    private String fromAccount;
     private String toAccount;
     private Double amount;
     private String mpin;
 
     // Getters and Setters
-
-    public String getFromAccount() {
-        return fromAccount;
-    }
-
-    public void setFromAccount(String fromAccount) {
-        this.fromAccount = fromAccount;
-    }
 
     public String getToAccount() {
         return toAccount;

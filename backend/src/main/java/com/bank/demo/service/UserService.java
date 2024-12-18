@@ -19,8 +19,8 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public double getBalance(Long userId) {
-        User user = userRepository.findById(userId)
+    public double getBalance(String username) {
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return user.getBalance();
     }
@@ -60,6 +60,10 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Invalid username or password"));
 
         return user;
+    }
+
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Invalid username"));
     }
 
     public User login(String username, String password) {
