@@ -1,6 +1,6 @@
 package com.bank.demo.dto;
 
-public class LoginResponse {
+public class UserData {
     private Long id;
     private String username;
     private String email;
