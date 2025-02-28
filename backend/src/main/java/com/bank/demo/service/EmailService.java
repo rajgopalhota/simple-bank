@@ -20,6 +20,7 @@ public class EmailService {
         MimeMessage message = mailSender.createMimeMessage();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom("rajgopalhotanrg@gmail.com");
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(body, true); // Set to true to indicate HTML content
@@ -28,4 +29,5 @@ public class EmailService {
             throw new RuntimeException("Failed to send email", e);
         }
     }
+
 }
