@@ -75,7 +75,6 @@ const Transaction = () => {
 
     try {
       const data = {
-        fromAccount: user.accountNumber,
         toAccount: recipient,
         amount: parseFloat(amount),
         mpin: mpin.join(""),
@@ -114,9 +113,8 @@ const Transaction = () => {
     <div className="flex flex-col items-center w-full p-4">
       {isRecipientValid && (
         <UserOutlined
-          className={`text-${
-            isRecipientValid.verified ? "green" : "red"
-          }-600 text-6xl mb-6`}
+          className={`text-${isRecipientValid.verified ? "green" : "red"
+            }-600 text-6xl mb-6`}
         />
       )}
 

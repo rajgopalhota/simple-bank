@@ -28,13 +28,23 @@ const Login = () => {
         `/api/users/login?username=${username}&password=${password}`
       );
 
+      // Backend now returns the token string directly
+      console.log("Login response:", response);
       if (response.data) {
-        login(response.data); // Store user data in context
-        navigate("/home");
+        console.log("Token received:", response.data);
+        const success = await login(response.data); // Store user data in context
+        console.log("Login success status:", success);
+        if (success) {
+          navigate("/home");
+        } else {
+          notification.error({ message: "Failed to fetch user details" });
+        }
       } else {
+        console.log("No data in response");
         notification.error({ message: "Invalid credentials" });
       }
     } catch (error) {
+      console.error("Login Error:", error);
       notification.error({ message: "Login failed" });
     } finally {
       setLoading(false); // Reset loading state

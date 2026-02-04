@@ -60,7 +60,7 @@ const Register = () => {
         const { username, password, email } = formData;
         const userData = { username, password, email, balance: 10000.0, mpin: mpin.join('') };
 
-        await axios.post('/api/users', userData);
+        await axios.post('/api/users/reg', userData);
         notification.success({ message: 'User registered successfully!' });
         navigate('/');
       } catch (error) {

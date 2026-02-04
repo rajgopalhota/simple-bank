@@ -12,7 +12,7 @@ const History = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await axios.get(`/api/transactions/user/${user.accountNumber}`);
+        const response = await axios.get(`/api/transactions/getList`);
         const parsedTransactions = response.data
           .map((transaction) => ({
             id: transaction.id,
@@ -37,7 +37,7 @@ const History = () => {
     };
 
     fetchTransactions();
-  }, [user]);
+  }, []);
 
   const downloadPDF = () => {
     const doc = new jsPDF();

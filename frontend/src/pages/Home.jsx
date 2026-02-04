@@ -52,7 +52,7 @@ const Home = () => {
     if (mpin.join("") === user.mpin) {
       // Validate MPIN against stored one in user data
       try {
-        const response = await axios.get(`/api/users/balance/${user.id}`);
+        const response = await axios.get(`/api/users/balance`);
         setBalance(response.data);
         setShowBalance(true);
         setIsMpinModalVisible(false);
